@@ -431,41 +431,7 @@ public extension NSView
             with: event
         )
     }
-    
-    // MARK:- Swizzled method forwarding
-    // -------------------------------------
-    /**
-     Call the old implementation that takes no parameters, if it exists for a
-     `selector` that has been replaced by swizzling.
-     
-     - Parameter selector: The `selector` whose previous implementation is to
-        be called
-     */
-    private func callReplacedMethod(for selector: Selector)
-    {
-        if let imp = Self.implementation(for: selector) {
-            callIMP(imp, self, selector)
-        }
-    }
-    
-    // -------------------------------------
-    /**
-     Call the old implementation that takes an `NSEvent` parameter, if it
-     exists for a `selector` that has been replaced by swizzling.
-     
-     - Parameters:
-        - selector: The `selector` whose previous implementation is to be called
-        - event: The `NSEvent` to be forwarded to the previous implementation.
-     */
-    private func callReplacedEventMethod(
-        for selector: Selector,
-        with event: NSEvent)
-    {
-        if let imp = Self.implementation(for: selector) {
-            callIMP_withObject(imp, self, selector, event)
-        }
-    }
-    
+        
     // MARK:- Swizzle initialization
     // -------------------------------------
     /**
