@@ -15,13 +15,15 @@ internal final class CustomToolTipWindow: NSWindow
         toolTipView: NSView,
         for owner: NSView,
         margins: CGSize = defaultMargins,
-        backgroundColor: NSColor = defaultBackColor) -> CustomToolTipWindow
+        backgroundColor: NSColor = defaultBackColor,
+        mouseLocation: CGPoint? = nil) -> CustomToolTipWindow
     {
         let window = CustomToolTipWindow(
             toolTipView: toolTipView,
             for: owner,
             margins: margins,
-            backgroundColor: backgroundColor
+            backgroundColor: backgroundColor,
+            mouseLocation: mouseLocation
         )
         window.orderFront(self)
         return window
@@ -32,7 +34,8 @@ internal final class CustomToolTipWindow: NSWindow
         toolTipView: NSView,
         for toolTipOwner: NSView,
         margins: CGSize,
-        backgroundColor: NSColor)
+        backgroundColor: NSColor,
+        mouseLocation: CGPoint?)
     {
         toolTipView.setFrameOrigin(.init(x: margins.width, y: margins.height))
         
@@ -59,7 +62,11 @@ internal final class CustomToolTipWindow: NSWindow
         self.contentView?.isHidden = false
 
         self.backgroundColor = backgroundColor
-        reposition(relativeTo: toolTipOwner)
+        
+        if let mouseLoc = mouseLocation {
+            reposition(relativeTo: mouseLoc, inWindowOf: toolTipOwner)
+        }
+        else { reposition(relativeTo: toolTipOwner) }
     }
     
     // -------------------------------------
@@ -82,22 +89,76 @@ internal final class CustomToolTipWindow: NSWindow
      
      Non-flipped coordinates (y = 0 at bottom) are assumed.
      */
-    public func reposition(relativeTo toolTipOwner: NSView)
+    private func reposition(relativeTo toolTipOwner: NSView)
     {
-        guard let ownerRect =
-            toolTipOwner.window?.convertToScreen(toolTipOwner.frame),
-            let screenRect = toolTipOwner.window?.screen?.visibleFrame
-        else { return }
+        guard let ownerWindow = toolTipOwner.window else { return }
         
-        let hPadding: CGFloat = ownerRect.width / 2
+        reposition(
+            relativeTo:
+                toolTipOwner.convert(
+                    toolTipOwner.bounds,
+                    to: ownerWindow.contentView
+                ),
+            in: ownerWindow,
+            hOffset: toolTipOwner.frame.width / 2,
+            vOffset: 0
+        )
+    }
+    
+    // -------------------------------------
+    /*
+     Place the tool tip window's frame in a sensible place relative to the
+     mouse location on the screen.
+     
+     The preferred location is overridden when any part of the tool tip would be
+     drawn off of the screen.  For conflicts with horizontal edges, it is moved
+     to be some "safety" distance within the screen bounds.  For conflicts with
+     the bottom edge, the tool tip is positioned above the owning view.
+     
+     Non-flipped coordinates (y = 0 at bottom) are assumed.
+     */
+    private func reposition(
+        relativeTo mouseLocation: CGPoint,
+        inWindowOf toolTipOwner: NSView)
+    {
+        guard let ownerWindow = toolTipOwner.window else { return }
+        
+        let mouseRect = CGRect(
+            origin: mouseLocation,
+            size: NSCursor.current.image.size
+        )
+        
+        reposition(
+            relativeTo: mouseRect,
+            in: ownerWindow,
+            hOffset: 0,
+            vOffset: 0
+        )
+    }
+    
+    // -------------------------------------
+    /*
+     - Parameters:
+        - rect: `CGRect` in the coordinates of the tool tip owning view's
+            window.
+        - ownerWindow: The window to which the tool tip owning view belongs
+     */
+    private func reposition(
+        relativeTo rect: CGRect,
+        in ownerWindow: NSWindow,
+        hOffset: CGFloat,
+        vOffset: CGFloat)
+    {
+        guard let screenRect = ownerWindow.screen?.visibleFrame else { return }
+        let winRect = ownerWindow.convertToScreen(rect)
+        
         let hSafetyPadding: CGFloat = 20
-        let vPadding: CGFloat = 0
         
         var newRect = frame
-        newRect.origin = ownerRect.origin
+        newRect.origin = winRect.origin
         
         // Position tool tip window slightly below the onwer on the screen
-        newRect.origin.y -= newRect.height + vPadding
+        newRect.origin.y -= newRect.height + vOffset
 
         if NSApp.userInterfaceLayoutDirection == .leftToRight
         {
@@ -105,7 +166,7 @@ internal final class CustomToolTipWindow: NSWindow
              Position the tool tip window to the right relative to the owner on
              the screen.
              */
-            newRect.origin.x += hPadding
+            newRect.origin.x += hOffset
             
             // Make sure we're not drawing off the right edge
             newRect.origin.x = min(
@@ -119,7 +180,7 @@ internal final class CustomToolTipWindow: NSWindow
              Position the tool tip window to the left relative to the owner on
              the screen.
              */
-            newRect.origin.x -= hPadding
+            newRect.origin.x -= hOffset
             
             // Make sure we're not drawing off the left edge
             newRect.origin.x =
@@ -133,12 +194,13 @@ internal final class CustomToolTipWindow: NSWindow
          If we are, move the tool tip above the onwer.
          */
         if newRect.minY < screenRect.minY  {
-            newRect.origin.y = ownerRect.maxY + vPadding
+            newRect.origin.y = winRect.maxY + vOffset
         }
         
         self.setFrameOrigin(newRect.origin)
     }
-    
+
+
     // -------------------------------------
     /// Provides thin border around the tool tip.
     private class BorderedView: NSView

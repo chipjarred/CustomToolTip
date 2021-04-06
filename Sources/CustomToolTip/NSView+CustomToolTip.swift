@@ -31,58 +31,6 @@ fileprivate extension NSTrackingArea
 
 // -------------------------------------
 /**
- Data structure to hold information used for holding the tool tip and for
- controlling when to show or hide it.
- */
-fileprivate struct ToolTipControl
-{
-    /**
-     `Date` when mouse was last moved within the tracking area.  Should be
-     `nil` when the mouse is not in the tracking area.
-     */
-    var mouseEntered: Date?
-    
-    /// View to which the custom tool tip is attached
-    weak var onwerView: NSView?
-    
-    /// The content view of the tool tip
-    var toolTipView: NSView?
-    
-    /// `true` when the tool tip is currently displayed.  `false` otherwise.
-    var isVisible: Bool = false
-    
-    /**
-     The tool tip's window.  Should be `nil` when the tool tip is not being
-     shown.
-     */
-    var toolTipWindow: NSWindow? = nil
-    
-    /**
-     The tool tip's window margins.
-     
-     The tool tip's window will sized and the tool tip view positioned in it so that there is
-     `toolTipMargins.width` between the left and right edges of the tool tip's view frame and the
-     corresponding edges of the tool tip window, and `toolTipMargins.height` space between the top
-     and bottom edges of the tool tip's view frame and the corresponding edges of the tool tip window.
-     */
-    var toolTipMargins: CGSize = CustomToolTipWindow.defaultMargins
-    
-    /// Tool tip window's background color
-    var toolTipBackgroundColor: NSColor = CustomToolTipWindow.defaultBackColor
-    
-    init(
-        mouseEntered: Date? = nil,
-        hostView: NSView,
-        toolTipView: NSView? = nil)
-    {
-        self.mouseEntered = mouseEntered
-        self.onwerView = hostView
-        self.toolTipView = toolTipView
-    }
-}
-
-// -------------------------------------
-/**
  Data structure for holding `ToolTipControl` instances.  Since we only need
  one collection of them for the application, all its methods and properties
  are `static`.
@@ -244,11 +192,7 @@ public extension NSView
     private func showToolTip()
     {
         guard var control = toolTipControl else { return }
-        defer
-        {
-            control.mouseEntered = Date.distantPast
-            toolTipControl = control
-        }
+        defer { toolTipControl = control }
         
         guard let toolTipView = control.toolTipView else
         {
@@ -263,7 +207,8 @@ public extension NSView
                 toolTipView: toolTipView,
                 for: self,
                 margins: control.toolTipMargins,
-                backgroundColor: control.toolTipBackgroundColor
+                backgroundColor: control.toolTipBackgroundColor,
+                mouseLocation: control.mouseLocation
             )
         }
     }
@@ -272,11 +217,11 @@ public extension NSView
     /**
      Hides the tool tip now.
      */
-    private func hideToolTip(exitTracking: Bool)
+    private func hideToolTip(mouseLocation: CGPoint?)
     {
         guard var control = toolTipControl else { return }
         
-        control.mouseEntered = exitTracking ? nil : Date()
+        control.mouseLocation = mouseLocation
         control.isVisible = false
         let window = control.toolTipWindow
         
@@ -303,13 +248,15 @@ public extension NSView
         - mouseEntered: Set to `true` when calling from `mouseEntered`,
             otherwise set to `false`
      */
-    private func scheduleShowToolTip(delay: TimeInterval, mouseEntered: Bool)
+    private func scheduleShowToolTip(
+        delay: TimeInterval,
+        mouseLocation: CGPoint?)
     {
         guard var control = toolTipControl else { return }
         
-        if mouseEntered
+        if let mouseLoc = mouseLocation
         {
-            control.mouseEntered = Date()
+            control.mouseLocation = mouseLoc
             toolTipControl = control
         }
 
@@ -337,7 +284,7 @@ public extension NSView
         else { return }
         
         if control.isVisible {
-            scheduleShowToolTip(delay: repeatDelay, mouseEntered: false)
+            scheduleShowToolTip(delay: repeatDelay, mouseLocation: nil)
         }
         else if Date().timeIntervalSince(mouseEntered) >= customToolTipDelay
         {
@@ -348,12 +295,12 @@ public extension NSView
                     self.showToolTip()
                     self.scheduleShowToolTip(
                         delay: repeatDelay,
-                        mouseEntered: false
+                        mouseLocation: nil
                     )
                 }
             }
         }
-        else { scheduleShowToolTip(delay: repeatDelay, mouseEntered: false) }
+        else { scheduleShowToolTip(delay: repeatDelay, mouseLocation: nil) }
     }
 
     // MARK:- Tracking Area maintenance
@@ -417,7 +364,10 @@ public extension NSView
      */
     @objc private func mouseEntered_CustomToolTip(with event: NSEvent)
     {
-        scheduleShowToolTip(delay: customToolTipDelay, mouseEntered: true)
+        scheduleShowToolTip(
+            delay: customToolTipDelay,
+            mouseLocation: event.locationInWindow
+        )
         
         callReplacedEventMethod(
             for: #selector(self.mouseEntered(with:)),
@@ -432,7 +382,7 @@ public extension NSView
      */
     @objc private func mouseExited_CustomToolTip(with event: NSEvent)
     {
-        hideToolTip(exitTracking: true)
+        hideToolTip(mouseLocation: nil)
 
         callReplacedEventMethod(
             for: #selector(self.mouseExited(with:)),
@@ -447,7 +397,7 @@ public extension NSView
      */
     @objc private func mouseMoved_CustomToolTip(with event: NSEvent)
     {
-        hideToolTip(exitTracking: false)
+        hideToolTip(mouseLocation: event.locationInWindow)
         
         callReplacedEventMethod(
             for: #selector(self.mouseMoved(with:)),
