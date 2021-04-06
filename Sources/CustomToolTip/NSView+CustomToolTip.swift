@@ -4,11 +4,11 @@ import SwizzleHelper
 fileprivate func trace(
     _ message: @autoclosure () -> String = "",
     function: StaticString = #function,
-    file: StaticString = #file,
+    file: StaticString = #fileID,
     line: UInt = #line)
 {
     #if DEBUG
-    print("\(file): \(line): \(message())\(function)")
+    print("\(file): \(line): \(function): \(message())")
     #endif
 }
 
@@ -56,6 +56,16 @@ fileprivate struct ToolTipControl
      shown.
      */
     var toolTipWindow: NSWindow? = nil
+    
+    /**
+     The tool tip's window margins.
+     
+     The tool tip's window will sized and the tool tip view positioned in it so that there is
+     `toolTipMargins.width` between the left and right edges of the tool tip's view frame and the
+     corresponding edges of the tool tip window, and `toolTipMargins.height` space between the top
+     and bottom edges of the tool tip's view frame and the corresponding edges of the tool tip window.
+     */
+    var toolTipMargins: CGSize = CGSize(width: 5, height: 5)
     
     init(
         mouseEntered: Date? = nil,
@@ -142,7 +152,7 @@ public extension NSView
      
      This view's `frame.size` will determine the size of the tool tip window
      */
-    public var customToolTip: NSView?
+    var customToolTip: NSView?
     {
         get { toolTipControl?.toolTipView }
         set
@@ -157,6 +167,25 @@ public extension NSView
                 toolTipControl = current
             }
             else { toolTipControl = nil }
+        }
+    }
+    
+    // -------------------------------------
+    /**
+     Get/Set the margins for the tool tip's content within the tool tip window.
+     */
+    var customToolTipMargins: CGSize
+    {
+        get
+        {
+            toolTipControl?.toolTipMargins
+                ?? CustomToolTipWindow.defaultMargins
+        }
+        set
+        {
+            var control = toolTipControl ?? ToolTipControl(hostView: self)
+            control.toolTipMargins = newValue
+            toolTipControl = control
         }
     }
     
@@ -232,8 +261,6 @@ public extension NSView
         control.toolTipWindow = nil
         
         toolTipControl = control
-
-        print("Hiding tool tip")
     }
     
     // -------------------------------------
@@ -349,7 +376,6 @@ public extension NSView
      */
     @objc private func updateTrackingAreas_CustomToolTip()
     {
-        trace()
         if let ta = trackingAreaForCustomToolTip
         {
             removeTrackingArea(ta)
@@ -367,7 +393,6 @@ public extension NSView
      */
     @objc private func mouseEntered_CustomToolTip(with event: NSEvent)
     {
-        trace()
         scheduleShowToolTip(delay: customToolTipDelay, mouseEntered: true)
         
         callReplacedEventMethod(
@@ -383,7 +408,6 @@ public extension NSView
      */
     @objc private func mouseExited_CustomToolTip(with event: NSEvent)
     {
-        trace()
         hideToolTip(exitTracking: true)
 
         callReplacedEventMethod(
@@ -399,7 +423,6 @@ public extension NSView
      */
     @objc private func mouseMoved_CustomToolTip(with event: NSEvent)
     {
-        trace()
         hideToolTip(exitTracking: false)
         
         callReplacedEventMethod(
@@ -448,7 +471,7 @@ public extension NSView
      Swizzle methods if they have not already been swizzed for the current
      `NSView` subclass.
      */
-    public static func initializeCustomToolTips() {
+    static func initializeCustomToolTips() {
         if !isSwizzled { swizzleCustomToolTipMethods() }
     }
     

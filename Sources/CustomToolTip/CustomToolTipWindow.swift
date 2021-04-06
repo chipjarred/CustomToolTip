@@ -5,35 +5,55 @@ import AppKit
 /**
  Window for displaying custom tool tips.
  */
-public class CustomToolTipWindow: NSWindow
+internal final class CustomToolTipWindow: NSWindow
 {
+    public static let defaultMargins: CGSize = CGSize(width: 5, height: 5)
+    
     // -------------------------------------
     public static func makeAndShow(
         toolTipView: NSView,
-        for owner: NSView) -> CustomToolTipWindow
+        for owner: NSView,
+        margins: CGSize = defaultMargins) -> CustomToolTipWindow
     {
-        let window = CustomToolTipWindow(toolTipView: toolTipView, for: owner)
+        let window = CustomToolTipWindow(
+            toolTipView: toolTipView,
+            for: owner,
+            margins: margins)
         window.orderFront(self)
         return window
     }
     
     // -------------------------------------
-    public init(toolTipView: NSView, for toolTipOwner: NSView)
+    public init(
+        toolTipView: NSView,
+        for toolTipOwner: NSView,
+        margins: CGSize)
     {
+        toolTipView.setFrameOrigin(.init(x: margins.width, y: margins.height))
+        
+        let tipFrame = toolTipView.frame
+        
+        let borderFrame = CGRect(
+            origin: .zero,
+            size: CGSize(
+                width: tipFrame.width + 2 * margins.width,
+                height: tipFrame.height + 2 * margins.height
+            )
+        )
+        
+        let border = BorderedView.init(frame: borderFrame)
+        border.addSubview(toolTipView)
+        
         super.init(
-            contentRect: toolTipView.bounds,
+            contentRect: border.bounds,
             styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
-        
+        self.contentView = border
+        self.contentView?.isHidden = false
+
         self.backgroundColor = NSColor.windowBackgroundColor
-        
-        let border = BorderedView.init(frame: toolTipView.frame)
-        border.addSubview(toolTipView)
-        contentView = border
-        contentView?.isHidden = false
-        
         reposition(relativeTo: toolTipOwner)
     }
     
