@@ -65,7 +65,10 @@ fileprivate struct ToolTipControl
      corresponding edges of the tool tip window, and `toolTipMargins.height` space between the top
      and bottom edges of the tool tip's view frame and the corresponding edges of the tool tip window.
      */
-    var toolTipMargins: CGSize = CGSize(width: 5, height: 5)
+    var toolTipMargins: CGSize = CustomToolTipWindow.defaultMargins
+    
+    /// Tool tip window's background color
+    var toolTipBackgroundColor: NSColor = CustomToolTipWindow.defaultBackColor
     
     init(
         mouseEntered: Date? = nil,
@@ -189,6 +192,25 @@ public extension NSView
         }
     }
     
+    // -------------------------------------
+    /**
+     Get/Set the margins for the tool tip's content within the tool tip window.
+     */
+    var customToolTipBackgroundColor: NSColor
+    {
+        get
+        {
+            toolTipControl?.toolTipBackgroundColor
+                ?? CustomToolTipWindow.defaultBackColor
+        }
+        set
+        {
+            var control = toolTipControl ?? ToolTipControl(hostView: self)
+            control.toolTipBackgroundColor = newValue
+            toolTipControl = control
+        }
+    }
+
     
     // -------------------------------------
     /**
@@ -240,7 +262,8 @@ public extension NSView
             control.toolTipWindow = CustomToolTipWindow.makeAndShow(
                 toolTipView: toolTipView,
                 for: self,
-                margins: control.toolTipMargins
+                margins: control.toolTipMargins,
+                backgroundColor: control.toolTipBackgroundColor
             )
         }
     }

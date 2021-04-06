@@ -8,17 +8,21 @@ import AppKit
 internal final class CustomToolTipWindow: NSWindow
 {
     public static let defaultMargins: CGSize = CGSize(width: 5, height: 5)
+    public static let defaultBackColor: NSColor = .windowBackgroundColor
     
     // -------------------------------------
     public static func makeAndShow(
         toolTipView: NSView,
         for owner: NSView,
-        margins: CGSize = defaultMargins) -> CustomToolTipWindow
+        margins: CGSize = defaultMargins,
+        backgroundColor: NSColor = defaultBackColor) -> CustomToolTipWindow
     {
         let window = CustomToolTipWindow(
             toolTipView: toolTipView,
             for: owner,
-            margins: margins)
+            margins: margins,
+            backgroundColor: backgroundColor
+        )
         window.orderFront(self)
         return window
     }
@@ -27,7 +31,8 @@ internal final class CustomToolTipWindow: NSWindow
     public init(
         toolTipView: NSView,
         for toolTipOwner: NSView,
-        margins: CGSize)
+        margins: CGSize,
+        backgroundColor: NSColor)
     {
         toolTipView.setFrameOrigin(.init(x: margins.width, y: margins.height))
         
@@ -53,7 +58,7 @@ internal final class CustomToolTipWindow: NSWindow
         self.contentView = border
         self.contentView?.isHidden = false
 
-        self.backgroundColor = NSColor.windowBackgroundColor
+        self.backgroundColor = backgroundColor
         reposition(relativeTo: toolTipOwner)
     }
     
