@@ -239,7 +239,8 @@ public extension NSView
             control.isVisible = true
             control.toolTipWindow = CustomToolTipWindow.makeAndShow(
                 toolTipView: toolTipView,
-                for: self
+                for: self,
+                margins: control.toolTipMargins
             )
         }
     }
