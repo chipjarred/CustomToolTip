@@ -106,7 +106,7 @@ internal final class CustomToolTipWindow: NSWindow
     }
     
     // -------------------------------------
-    /*
+    /**
      Place the tool tip window's frame in a sensible place relative to the
      mouse location on the screen.
      
@@ -123,8 +123,12 @@ internal final class CustomToolTipWindow: NSWindow
     {
         guard let ownerWindow = toolTipOwner.window else { return }
         
+        let cursorSize = NSCursor.current.image.size
         let mouseRect = CGRect(
-            origin: mouseLocation,
+            origin: CGPoint(
+                x: mouseLocation.x,
+                y: mouseLocation.y - cursorSize.height
+            ),
             size: NSCursor.current.image.size
         )
         
