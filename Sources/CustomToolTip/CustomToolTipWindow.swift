@@ -161,11 +161,23 @@ internal final class CustomToolTipWindow: NSWindow
     }
     
     // -------------------------------------
-    /*
+    /**
+     Reposition the tool tip window relative to the specified `rect`
+    
+     For conflicts with horizontal edges, the tool tip is moved horizontally to
+     be some "safety" distance within the screen bounds.  For conflicts with
+     the bottom edge, the tool tip is positioned above `rect` rather than below
+     it.
+     
      - Parameters:
         - rect: `CGRect` in the coordinates of the tool tip owning view's
             window.
         - ownerWindow: The window to which the tool tip owning view belongs
+        - hOffset: The distance to horizontally offset the tool tip from
+            `rect.origin`.  Whether it is offset to the left or right is
+            determined by the current layout direction in `NSApp`.
+        - vOffset: The distance to vertically offset the tool tip below
+            `rect.origin`.  Non-flipped (y = 0 at bottom) coordinates are assumed.
      */
     private func reposition(
         relativeTo rect: CGRect,
