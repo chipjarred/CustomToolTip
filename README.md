@@ -35,3 +35,23 @@ By default CustomToolTip uses the current system window background color for the
 ```swift
 myControl.customToolTipBackgroundColor = NSColor.blue
 ```
+
+## Conveniences
+
+If you just want to add text tool tip using a specific font, you can do it like this:
+
+```swift
+myControl.addCustomToolTip(from: "This is my tool tip", with: NSFont(name: "Chalkboard", size: 20))
+```
+
+If you have an `NSAttributedString`, you can use that:
+
+```swift
+myControl.addCustomToolTip(from: myAttributedString)
+```
+
+To use an `NSImage`` as the tool tip content:
+
+```swift
+myControl.addCustomToolTip(from: myToolTipImage, scaling: .toFit(width: 50, height: 50))
+```

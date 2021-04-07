@@ -59,6 +59,124 @@ public extension NSView
     
     // -------------------------------------
     /**
+     Attach a custom tool tip to the receiver that will display `string`
+     rendered with `font`.
+     
+     - Parameters:
+        - string: `String` containing the textual content of the tool tip
+        - font: `NSFont` to be used when rendering the tool tip.
+     */
+    func addCustomToolTip(
+        from string: String,
+        with font: NSFont? = .toolTipsFont(ofSize: 10))
+    {
+        addCustomToolTip(
+            from:
+                NSAttributedString(
+                    string: string,
+                    attributes: [.font: font as Any]
+                )
+        )
+    }
+    
+    // -------------------------------------
+    /**
+     Attach a custom tool tip to the receiver to display an attributed string.
+     
+     - Parameter attributedString: an `NSAttributedString` to display in the
+        tool tip.
+     */
+    func addCustomToolTip(from attributedString: NSAttributedString) {
+        customToolTip = NSTextField(labelWithAttributedString: attributedString)
+    }
+    
+    // -------------------------------------
+    enum CustomToolTipScaling
+    {
+        /// Use the image size as is.
+        case none
+        
+        /**
+         Scale the image horizontally to a specified `width`.  The image's
+         `height` will be used as is.
+         */
+        case toWidth(_ width: CGFloat)
+        
+        /**
+         Scale the image vertically to a specified `height`.  The image's
+         `width` will be used as is.
+         */
+        case toHeight(_ height: CGFloat)
+        
+        /**
+         Scale the images `width` and `height` independently to the specified
+         `size`.
+         */
+        case toSize(width: CGFloat, height: CGFloat)
+        
+        /**
+         Scale the image by the specified `factor`, preserving its aspect ratio
+         */
+        case by(factor: CGFloat)
+        
+        /**
+         Scale the image to fit the specified `size`, preserving its aspect rato
+         */
+        case toFit(width: CGFloat, height: CGFloat)
+    }
+    
+    // -------------------------------------
+    /**
+     Attach a custom tool tip to the receiver to display an image.
+     
+     - Parameters:
+        - image: `NSImage` to be used for the tool tip content
+        - scaling: `CustomToolTipScaling` specifying how the image should be
+            scaled.  If not specified, the default is `.none`.
+     */
+    func addCustomToolTip(
+        from image: NSImage,
+        scaling: CustomToolTipScaling = .none)
+    {
+        let imageView = NSImageView()
+        imageView.imageScaling = .scaleAxesIndependently
+        
+        var size: CGSize
+        switch scaling
+        {
+            case .none:
+                size = image.size
+                
+            case .toWidth(let width):
+                size = .init(width: abs(width), height: image.size.height)
+                
+            case .toHeight(let height):
+                size = .init(width: image.size.width, height: abs(height))
+                
+            case let .toSize(width, height):
+                size = .init(width: abs(width), height: abs(height))
+                
+            case .by(let factor):
+                let factor = abs(factor)
+                size = .init(
+                    width: image.size.width * factor,
+                    height: image.size.height * factor
+                )
+                
+            case let .toFit(width, height):
+                let fitSize = CGSize(width: abs(width), height: abs(height))
+                imageView.imageScaling = .scaleProportionallyUpOrDown
+                size = fitSize
+        }
+
+        imageView.setFrameSize(size)
+        imageView.image = image
+        
+        customToolTip = imageView
+    }
+    
+    // -------------------------------------
+    /**
      Get/Set the margins for the tool tip's content within the tool tip window.
      */
     var customToolTipBackgroundColor: NSColor
