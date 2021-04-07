@@ -251,6 +251,10 @@ public extension NSView
     // -------------------------------------
     /**
      Hides the tool tip now.
+     
+     - Parameters mouseLocation: If the mouse is still in the tracking area,
+        set to its location in the receiving view's *window* coorindates.  If
+        the mouse is not in the tracking area, set to `nil`.
      */
     private func hideToolTip(mouseLocation: CGPoint?)
     {
@@ -280,8 +284,10 @@ public extension NSView
      - Parameters:
         - delay: Number of seconds to wait until determining whether or not to
             display the tool tip
-        - mouseEntered: Set to `true` when calling from `mouseEntered`,
-            otherwise set to `false`
+        - mouseLocation: If calling from `mouseEntered(with:)` or
+            `mouseMoved(with:)`, set to the mouse's current location relative
+            to the receiving view's *window* coordinates; otherwise, set to
+            `nil`
      */
     private func scheduleShowToolTip(
         delay: TimeInterval,
