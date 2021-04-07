@@ -47,7 +47,7 @@ myControl.customToolTipBackgroundColor = NSColor.blue
 
 For some especially common cases CustomToolTip provides convenience methods that will make the view for you.
 
-If you just want to add text tool tip using a specific font, you can do it like this:
+If you just want to add a text tool tip using a specific font, you can do it like this:
 
 ```swift
 myControl.addCustomToolTip(from: "This is my tool tip", with: NSFont(name: "Chalkboard", size: 20))
