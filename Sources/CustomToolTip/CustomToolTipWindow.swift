@@ -227,7 +227,7 @@ internal final class CustomToolTipWindow: NSWindow
         /*
          Make sure we're not drawing off the bottom edge of the visible area.
          Non-flipped coordinates (y = 0 at bottom) are assumed.
-         If we are, move the tool tip above the onwer.
+         If we are, move the tool tip above ownerRect.
          */
         if tipRect.minY < screenRect.minY + vOffset  {
             tipRect.origin.y = ownerRect.maxY + vOffset
