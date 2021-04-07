@@ -7,7 +7,7 @@ CustomToolTip is a Swift Package for macOS Cocoa applications that lets you add 
 - Step 1: Add [https://github.com/chipjarred/CustomToolTip.git](https://github.com/chipjarred/CustomToolTip.git) as a Swift Package dependency to your project in Xcode.
 - Step 2: *There is no step 2!*
 
-CustomToolTip provides an extension on `NSView` that handles the rest.  You can just create your tool tip content and attach it to views with the `customToolTip` property that the extension adds to `NSView`.
+CustomToolTip provides an extension on `NSView` that handles the rest.  You can focus on creating your tool tip content and attach it to your views with the `customToolTip` property that the extension adds to `NSView`.
 
 You don't need to subclass anything. You don't need to nest views in a special tool tip view.  You don't even need to change anything in storyboards.  
 
