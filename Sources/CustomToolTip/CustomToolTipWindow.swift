@@ -1,5 +1,8 @@
 import AppKit
 
+public var defaultMargins: CGSize = CGSize(width: 5, height: 5)
+public var defaultBackgroundColor: NSColor = .windowBackgroundColor
+
 // MARK:- Custom Tool Tip Window
 // -------------------------------------
 /**
@@ -7,9 +10,6 @@ import AppKit
  */
 internal final class CustomToolTipWindow: NSWindow
 {
-    public static let defaultMargins: CGSize = CGSize(width: 5, height: 5)
-    public static let defaultBackColor: NSColor = .windowBackgroundColor
-    
     // -------------------------------------
     /**
      Makes a tool tip containing the view content specified by `toolTipView`,
@@ -44,7 +44,7 @@ internal final class CustomToolTipWindow: NSWindow
         toolTipView: NSView,
         for owner: NSView,
         margins: CGSize = defaultMargins,
-        backgroundColor: NSColor = defaultBackColor,
+        backgroundColor: NSColor = defaultBackgroundColor,
         mouseLocation: CGPoint? = nil) -> CustomToolTipWindow
     {
         let window = CustomToolTipWindow(

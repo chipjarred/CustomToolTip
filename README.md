@@ -43,6 +43,13 @@ By default CustomToolTip uses the current system window background color for the
 myControl.customToolTipBackgroundColor = NSColor.blue
 ```
 
+You can also set the default values to use when you don't specify them per view:
+
+```swift
+CustomToolTip.defaultMargins = CGSize(width: 2, height: 2)
+CustomToolTip.defaultBackColor = .controlColor
+```
+
 ## Conveniences
 
 For some especially common cases CustomToolTip provides convenience methods that will make the view for you.

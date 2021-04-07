@@ -46,8 +46,7 @@ public extension NSView
     {
         get
         {
-            toolTipControl?.toolTipMargins
-                ?? CustomToolTipWindow.defaultMargins
+            toolTipControl?.toolTipMargins ?? CustomToolTip.defaultMargins
         }
         set
         {
@@ -184,7 +183,7 @@ public extension NSView
         get
         {
             toolTipControl?.toolTipBackgroundColor
-                ?? CustomToolTipWindow.defaultBackColor
+                ?? CustomToolTip.defaultBackgroundColor
         }
         set
         {
