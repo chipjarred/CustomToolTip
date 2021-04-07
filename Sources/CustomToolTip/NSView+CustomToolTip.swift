@@ -324,10 +324,8 @@ public extension NSView
               let mouseEntered = control.mouseEntered
         else { return }
         
-        if control.isVisible {
-            scheduleShowToolTip(delay: repeatDelay, mouseLocation: nil)
-        }
-        else if Date().timeIntervalSince(mouseEntered) >= customToolTipDelay
+        if !control.isVisible,
+           Date().timeIntervalSince(mouseEntered) >= customToolTipDelay
         {
             DispatchQueue.main.async
             { [weak self] in
