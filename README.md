@@ -50,7 +50,7 @@ If you have an `NSAttributedString`, you can use that:
 myControl.addCustomToolTip(from: myAttributedString)
 ```
 
-To use an `NSImage`` as the tool tip content:
+To use an `NSImage` as the tool tip content:
 
 ```swift
 myControl.addCustomToolTip(from: myToolTipImage, scaling: .toFit(width: 50, height: 50))
