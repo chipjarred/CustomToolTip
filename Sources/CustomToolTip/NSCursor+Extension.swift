@@ -5,20 +5,33 @@ internal extension NSCursor
 {
     // -------------------------------------
     /*
-     What we *really* want is to get the minimum rectangle encompassing the
-     visible (not transparent) portions of the cursor so that
-     CustomToolTipWindow can position the tool tip in a way that is consistent
-     with the standard tool tips.
-     
-     Unfortunately the actual cursor images have lots of slop all around, so we
-     can't just use it's size.  And we can't just use the hotspot.  Instead we,
-     quite annoyingly, have to just special case each kind of cursor.
+     Gets the smallest `CGRect` that fully encloses the non-transparent
+     portions of the mouse cursor's image.
      */
     func frame(for location: CGPoint) -> CGRect
     {
         let hotSpot = self.hotSpot
-        let size = image.size
+                
+        /*
+         First try to get cursorRect the "right" way... which is to extract the
+         minimum CGRect that contains the masked portions (ie. alpha
+         channel > some threshold). This can fail if the image's bitmap isn't
+         in RGBA format.
+         */
+        if var cursorRect = image.minMaskRect(alphaThreshold: 0.5)
+        {
+            cursorRect.origin.x += location.x - hotSpot.x
+            cursorRect.origin.y = location.y - cursorRect.minY + hotSpot.y
+            cursorRect.origin.y -= cursorRect.height
+            return cursorRect
+        }
         
+        /*
+         If getting the proper cursorRect from the actual image fails, we fall
+         back on some unfortunately excessive special cases that I determined by
+         trial and error.
+         */
+        let size = image.size
         var cursorRect = CGRect(
             origin: CGPoint(
                 x: location.x,
