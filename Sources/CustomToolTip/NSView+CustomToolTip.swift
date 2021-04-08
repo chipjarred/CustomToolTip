@@ -193,22 +193,14 @@ public extension NSView
         }
     }
 
-    
     // -------------------------------------
     /**
      Gets/sets the `ToolTipControl` instance associated with the receiving view
      */
     fileprivate var toolTipControl: ToolTipControl?
     {
-        get { ToolTipControls.getControl(for: self) }
-        
-        set
-        {
-            if let newValue = newValue {
-                ToolTipControls.setControl(for: self, to: newValue)
-            }
-            else { ToolTipControls.removeControl(for: self) }
-        }
+        get { associatedValues[toolTipKeyTag] as? ToolTipControl }
+        set { associatedValues[toolTipKeyTag] = newValue }
     }
     
     // MARK:- Showing and Hiding Tool Tip
