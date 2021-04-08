@@ -1,8 +1,13 @@
 import AppKit
 
+fileprivate var cachedCursorRect = CGRect.zero
+fileprivate weak var cachedCursorImage: NSImage? = nil
+
 // -------------------------------------
 internal extension NSCursor
 {
+    private var maskAlphaThreshold: CGFloat { 0.5 }
+    
     // -------------------------------------
     /*
      Gets the smallest `CGRect` that fully encloses the non-transparent
@@ -18,7 +23,7 @@ internal extension NSCursor
          channel > some threshold). This can fail if the image's bitmap isn't
          in RGBA format.
          */
-        if var cursorRect = image.minMaskRect(alphaThreshold: 0.5)
+        if var cursorRect = minMaskedImageRect
         {
             cursorRect.origin.x += location.x - hotSpot.x
             cursorRect.origin.y = location.y - cursorRect.minY + hotSpot.y
@@ -31,6 +36,26 @@ internal extension NSCursor
          back on some unfortunately excessive special cases that I determined by
          trial and error.
          */
+        return specialCasedMinMaskFrame(for: location)
+    }
+    
+    // -------------------------------------
+    private var minMaskedImageRect: CGRect?
+    {
+        if cachedCursorImage === image { return cachedCursorRect }
+        
+        guard let rect = image.minMaskRect(alphaThreshold: maskAlphaThreshold)
+        else { return nil }
+        
+        cachedCursorImage = image
+        cachedCursorRect = rect
+        return rect
+    }
+    
+    // -------------------------------------
+    private func specialCasedMinMaskFrame(for location: CGPoint) -> CGRect
+    {
+        let hotSpot = self.hotSpot
         let size = image.size
         var cursorRect = CGRect(
             origin: CGPoint(
