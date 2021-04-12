@@ -26,9 +26,7 @@ internal extension NSImage
         {
             for x in 0..<bitMap.pixelsWide
             {
-                let pixel = pixels[y * bitMap.pixelsWide + x]
-                
-                if pixel.alpha > alphaThreshold
+                if pixels[y * bitMap.pixelsWide + x].alpha > alphaThreshold
                 {
                     minX = min(minX, x)
                     minY = min(minY, y)

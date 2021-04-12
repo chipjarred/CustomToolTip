@@ -16,6 +16,24 @@ internal extension NSBitmapImageRep
         var red, green, blue, alpha: CGFloat
         
         // -------------------------------------
+        fileprivate init<S: RandomAccessCollection>(_ components: S)
+            where S.Element == CGFloat, S.Index == Int
+        {
+            assert(components.count == 4)
+            var i = components.startIndex
+            self.red   = components[i]
+            
+            i = components.index(after: i)
+            self.green = components[i]
+            
+            i = components.index(after: i)
+            self.blue  = components[i]
+            
+            i = components.index(after: i)
+            self.alpha = components[i]
+        }
+        
+        // -------------------------------------
         fileprivate mutating func toAlphaFirst()
         {
             if NSBitmapImageRep.alphaFirstMeansABGRNotARGB
@@ -44,18 +62,8 @@ internal extension NSBitmapImageRep
         var pixels = [RGBAPixel]()
         pixels.reserveCapacity(components.count / 4)
         
-        var i = 0
-        while i < components.count
-        {
-            pixels.append(
-                .init(
-                    red: components[i],
-                    green: components[i+1],
-                    blue: components[i+2],
-                    alpha: components[i+3]
-                )
-            )
-            i += 4
+        for i in stride(from: 0, to: components.count, by: 4) {
+            pixels.append(.init(components[i..<(i+3)]))
         }
         
         if bitmapFormat.contains(.alphaFirst) {
