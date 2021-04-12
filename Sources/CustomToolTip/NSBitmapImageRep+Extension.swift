@@ -63,7 +63,7 @@ internal extension NSBitmapImageRep
         pixels.reserveCapacity(components.count / 4)
         
         for i in stride(from: 0, to: components.count, by: 4) {
-            pixels.append(.init(components[i..<(i+3)]))
+            pixels.append(.init(components[i..<(i+4)]))
         }
         
         if bitmapFormat.contains(.alphaFirst) {
