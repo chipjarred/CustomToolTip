@@ -20,7 +20,7 @@ public extension NSView
      
      This view's `frame.size` will determine the size of the tool tip window
      */
-    var customToolTip: NSView?
+    public var customToolTip: NSView?
     {
         get { toolTipControl?.toolTipView }
         set
@@ -42,7 +42,7 @@ public extension NSView
     /**
      Get/Set the margins for the tool tip's content within the tool tip window.
      */
-    var customToolTipMargins: CGSize
+    public var customToolTipMargins: CGSize
     {
         get
         {
@@ -65,7 +65,7 @@ public extension NSView
         - string: `String` containing the textual content of the tool tip
         - font: `NSFont` to be used when rendering the tool tip.
      */
-    func addCustomToolTip(
+    public func addCustomToolTip(
         from string: String,
         with font: NSFont? = .toolTipsFont(ofSize: 10))
     {
@@ -85,12 +85,12 @@ public extension NSView
      - Parameter attributedString: an `NSAttributedString` to display in the
         tool tip.
      */
-    func addCustomToolTip(from attributedString: NSAttributedString) {
+    public func addCustomToolTip(from attributedString: NSAttributedString) {
         customToolTip = NSTextField(labelWithAttributedString: attributedString)
     }
     
     // -------------------------------------
-    enum CustomToolTipScaling
+    public enum CustomToolTipScaling
     {
         /// Use the image size as is.
         case none
@@ -133,7 +133,7 @@ public extension NSView
         - scaling: `CustomToolTipScaling` specifying how the image should be
             scaled.  If not specified, the default is `.none`.
      */
-    func addCustomToolTip(
+    public func addCustomToolTip(
         from image: NSImage,
         scaling: CustomToolTipScaling = .none)
     {
@@ -178,7 +178,7 @@ public extension NSView
     /**
      Get/Set the margins for the tool tip's content within the tool tip window.
      */
-    var customToolTipBackgroundColor: NSColor
+    public var customToolTipBackgroundColor: NSColor
     {
         get
         {
