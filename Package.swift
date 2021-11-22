@@ -15,7 +15,6 @@ let package = Package(
     [
         .package(
             url: "https://github.com/chipjarred/SwizzleHelper.git",
-            .branch("main")
         )
     ],
     targets:
