@@ -14,7 +14,7 @@ let package = Package(
     dependencies:
     [
         .package(
-            url: "https://github.com/chipjarred/SwizzleHelper.git",
+            url: "https://github.com/chipjarred/SwizzleHelper.git"
         )
     ],
     targets:
